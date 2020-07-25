@@ -90,7 +90,7 @@ class _ChatScreenState extends State<ChatScreen> {
 
                         if (periodOffset == 12) hours -= 12;
 
-                        final String time = '$hours:$minutes $period';
+                        final String time = minutes<10?'$hours:0$minutes $period':'$hours:$minutes $period';
 
                         _firestore.collection("messages").add({
                           "text": messageText,
@@ -163,10 +163,10 @@ class MessagesStream extends StatelessWidget {
 }
 
 class MessageBubble extends StatelessWidget {
-  final String sender, text ,time;
+  final String sender, text, time;
   final bool isLoggedInUser;
 
-  MessageBubble({this.text, this.sender, this.isLoggedInUser,this.time});
+  MessageBubble({this.text, this.sender, this.isLoggedInUser, this.time});
 
   @override
   Widget build(BuildContext context) {

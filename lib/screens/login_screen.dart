@@ -18,6 +18,25 @@ class _LoginScreenState extends State<LoginScreen> {
   String email, password;
 
   @override
+  void initState() {
+    // TODO: implement initState
+    super.initState();
+
+    getCurrentUser();
+  }
+
+  void getCurrentUser() async {
+    try {
+      final user = await _auth.currentUser();
+      if (user != null) {
+        Navigator.pushNamed(context, ChatScreen.id);
+      }
+    } catch (e) {
+      print(e);
+    }
+  }
+
+  @override
   Widget build(BuildContext context) {
     return Scaffold(
       body: ModalProgressHUD(

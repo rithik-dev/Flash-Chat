@@ -1,3 +1,5 @@
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:flash_chat_app/screens/chat_screen.dart';
 import 'package:flash_chat_app/screens/login_screen.dart';
 import 'package:flash_chat_app/screens/registration_screen.dart';
 import 'package:flutter/material.dart';
@@ -15,10 +17,13 @@ class _WelcomeScreenState extends State<WelcomeScreen>
     with SingleTickerProviderStateMixin {
   AnimationController controller;
   Animation animation;
+  final _auth = FirebaseAuth.instance;
 
   @override
   void initState() {
     super.initState();
+
+    getCurrentUser();
 
     controller = AnimationController(
       duration: Duration(seconds: 1),
@@ -38,10 +43,20 @@ class _WelcomeScreenState extends State<WelcomeScreen>
     super.dispose();
   }
 
+  void getCurrentUser() async {
+    try {
+      final user = await _auth.currentUser();
+      if (user != null) {
+        Navigator.pushNamed(context, ChatScreen.id);
+      }
+    } catch (e) {
+      print(e);
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: animation.value,
       body: Padding(
         padding: EdgeInsets.symmetric(horizontal: 24.0),
         child: Column(
@@ -49,6 +64,7 @@ class _WelcomeScreenState extends State<WelcomeScreen>
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: <Widget>[
             Row(
+              crossAxisAlignment: CrossAxisAlignment.center,
               children: <Widget>[
                 Hero(
                   tag: "logo",

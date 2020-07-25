@@ -80,12 +80,25 @@ class _ChatScreenState extends State<ChatScreen> {
                       //clearing text on send
                       messageTextController.clear();
                       //Implement send functionality.
-                      if (messageText != "")
+                      messageText = messageText.trim();
+                      if (messageText != "") {
+                        TimeOfDay displayTime = TimeOfDay.now();
+                        int hours = displayTime.hour;
+                        int minutes = displayTime.minute;
+                        int periodOffset = displayTime.periodOffset;
+                        String period = periodOffset == 12 ? "PM" : "AM";
+
+                        if (periodOffset == 12) hours -= 12;
+
+                        final String time = '$hours:$minutes $period';
+
                         _firestore.collection("messages").add({
                           "text": messageText,
                           "sender": loggedInUser.email,
                           "timestamp": FieldValue.serverTimestamp(),
+                          "displayTime": time,
                         });
+                      }
                       messageText = "";
                     },
                     child: Text(
@@ -124,6 +137,7 @@ class MessagesStream extends StatelessWidget {
         for (var message in messages) {
           final messageText = message.data['text'];
           final messageSender = message.data['sender'];
+          final messageTime = message.data['displayTime'];
 
           final currentUser = loggedInUser.email;
 
@@ -131,6 +145,7 @@ class MessagesStream extends StatelessWidget {
             text: messageText,
             sender: messageSender,
             isLoggedInUser: currentUser == messageSender,
+            time: messageTime,
           );
 
           messageBubbles.add(messageBubble);
@@ -148,10 +163,10 @@ class MessagesStream extends StatelessWidget {
 }
 
 class MessageBubble extends StatelessWidget {
-  final String sender, text;
+  final String sender, text ,time;
   final bool isLoggedInUser;
 
-  MessageBubble({this.text, this.sender, this.isLoggedInUser});
+  MessageBubble({this.text, this.sender, this.isLoggedInUser,this.time});
 
   @override
   Widget build(BuildContext context) {
@@ -162,10 +177,10 @@ class MessageBubble extends StatelessWidget {
             isLoggedInUser ? CrossAxisAlignment.end : CrossAxisAlignment.start,
         children: <Widget>[
           Text(
-            this.sender,
+            "${this.sender} | $time",
             style: TextStyle(
               fontSize: 12.0,
-              color: Colors.black54,
+              color: Colors.white,
             ),
           ),
           Material(
@@ -178,7 +193,7 @@ class MessageBubble extends StatelessWidget {
               bottomLeft: Radius.circular(30.0),
               bottomRight: Radius.circular(30.0),
             ),
-            color: isLoggedInUser ? Colors.lightBlueAccent : Colors.white,
+            color: isLoggedInUser ? Colors.cyanAccent : Color(0xFF262335),
             child: Padding(
               padding:
                   const EdgeInsets.symmetric(vertical: 10.0, horizontal: 20.0),
@@ -186,7 +201,7 @@ class MessageBubble extends StatelessWidget {
                 this.text,
                 style: TextStyle(
                   fontSize: 15.0,
-                  color: isLoggedInUser ? Colors.white : Colors.black,
+                  color: isLoggedInUser ? Colors.black : Colors.white,
                 ),
               ),
             ),
